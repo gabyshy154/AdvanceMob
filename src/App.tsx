@@ -1,38 +1,34 @@
-/**
- * App.tsx
- * Directly loads ComponentShowcase instead of NewAppScreen
- */
-
 import React from 'react';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ComponentShowcase } from '@react-native/new-app-screen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+import MyProfile from './screens/MyProfile';
+import ProfileDetails from './screens/ProfileDetails';
 
+export type RootStackParamList = {
+  MyProfile: undefined;
+  ProfileDetails: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const App = () => {
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Main />
-    </SafeAreaProvider>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="MyProfile">
+        <Stack.Screen
+          name="MyProfile"
+          component={MyProfile}
+          options={{ title: 'My Profile' }}
+        />
+        <Stack.Screen
+          name="ProfileDetails"
+          component={ProfileDetails}
+          options={{ title: 'Profile Details' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
-
-function Main() {
-  const insets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <ComponentShowcase safeAreaInsets={insets} />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+};
 
 export default App;
