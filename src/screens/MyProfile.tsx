@@ -12,11 +12,21 @@ const MyProfile = () => {
         source={require('../assets/school_header.png')}
       />
       <Text style={styles.title}>Welcome to My Profile</Text>
+
+
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('ProfileDetails' as never)}
       >
         <Text style={styles.buttonText}>Go to Profile Details</Text>
+      </TouchableOpacity>
+
+
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: '#1DB954', marginTop: 15 }]}
+        onPress={() => navigation.navigate('Spotify' as never)}
+      >
+        <Text style={styles.buttonText}>Go to Spotify</Text>
       </TouchableOpacity>
     </View>
   );

@@ -4,10 +4,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import MyProfile from './screens/MyProfile';
 import ProfileDetails from './screens/ProfileDetails';
+import Spotify from './screens/Spotify';
 
 export type RootStackParamList = {
   MyProfile: undefined;
   ProfileDetails: undefined;
+  Spotify: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -25,6 +27,11 @@ const App = () => {
           name="ProfileDetails"
           component={ProfileDetails}
           options={{ title: 'Profile Details' }}
+        />
+        <Stack.Screen
+          name="Spotify"
+          component={Spotify}
+          options={{ title: 'Spotify Sign In' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

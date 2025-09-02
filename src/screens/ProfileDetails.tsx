@@ -6,7 +6,7 @@ const ProfileDetails = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>📄 Student Profile</Text>
 
-      {/* Local profile image */}
+      
       <Image
         style={styles.profileImage}
         source={require('../assets/profile_pic.jpg')}
