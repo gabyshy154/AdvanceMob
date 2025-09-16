@@ -1,16 +1,34 @@
 import React from 'react';
-import { ScrollView, View, Text, Image, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+type ProfileDetailsNav = NativeStackNavigationProp<RootStackParamList, 'ProfileDetails'>;
 
 const ProfileDetails = () => {
+  const navigation = useNavigation<ProfileDetailsNav>();
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>📄 Student Profile</Text>
+      {/* Back Button */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => {
+            console.log('Back button pressed in ProfileDetails');
+            navigation.goBack();
+          }}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
 
-      
-      <Image
-        style={styles.profileImage}
-        source={require('../assets/profile_pic.jpg')}
-      />
+      <Text style={styles.headerTitle}>📄 Student Profile</Text>
+
+      <Image style={styles.profileImage} source={require('../assets/profile_pic.jpg')} />
 
       <View style={styles.infoBox}>
         <Text style={styles.label}>Full Name:</Text>
@@ -38,6 +56,8 @@ const ProfileDetails = () => {
   );
 };
 
+export default ProfileDetails;
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -46,9 +66,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 20,
+    paddingTop: 10,
+  },
+  backButton: {
+    padding: 12,
+    marginRight: 10,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    alignSelf: 'center',
+    width: '100%',
+    textAlign: 'center',
   },
   profileImage: {
     width: 140,
@@ -61,7 +97,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     backgroundColor: '#f4f4f4',
-    elevation: 2, // Android shadow
+    elevation: 2,
   },
   label: {
     fontSize: 14,
@@ -73,5 +109,3 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
-
-export default ProfileDetails;
