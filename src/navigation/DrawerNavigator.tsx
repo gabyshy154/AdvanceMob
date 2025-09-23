@@ -28,7 +28,13 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ token }) => {
         initialParams={{ token }}
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="person-circle-outline" size={size} color={color} />
+            <Ionicons
+              name="person-circle-outline"
+              size={size}
+              color={color}
+              accessibilityLabel="Profile icon"
+              accessibilityRole="image"
+            />
           ),
         }}
       />
@@ -37,7 +43,13 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ token }) => {
         component={SettingsScreen}
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+            <Ionicons
+              name="settings-outline"
+              size={size}
+              color={color}
+              accessibilityLabel="Settings icon"
+              accessibilityRole="image"
+            />
           ),
         }}
       />
@@ -47,7 +59,13 @@ const DrawerNavigator: React.FC<DrawerNavigatorProps> = ({ token }) => {
         initialParams={{ token }}
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="musical-notes-outline" size={size} color={color} />
+            <Ionicons
+              name="musical-notes-outline"
+              size={size}
+              color={color}
+              accessibilityLabel="Playlists icon"
+              accessibilityRole="image"
+            />
           ),
         }}
       />

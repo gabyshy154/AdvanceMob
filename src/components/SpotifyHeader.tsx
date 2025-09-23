@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // ✅ use this
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type Props = {
   title: string;
@@ -8,8 +8,20 @@ type Props = {
 
 const SpotifyHeader = ({ title }: Props) => {
   return (
-    <View style={styles.header}>
-      <Ionicons name="musical-notes" size={24} color="#1DB954" style={styles.icon} />
+    <View
+      style={styles.header}
+      accessible={true}
+      accessibilityRole="header"
+      accessibilityLabel={`${title} header`}
+    >
+      <Ionicons
+        name="musical-notes"
+        size={24}
+        color="#1DB954"
+        style={styles.icon}
+        accessibilityLabel="Spotify logo icon"
+        accessibilityRole="image"
+      />
       <Text style={styles.title}>{title}</Text>
     </View>
   );
