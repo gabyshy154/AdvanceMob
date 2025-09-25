@@ -15,6 +15,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 // --- TYPES ---
 type PlaylistsNav = NativeStackNavigationProp<
@@ -79,60 +81,32 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-// --- ANIMATED PLAYLIST ITEM COMPONENT ---
+// --- ANIMATED PLAYLIST ITEM ---
 interface AnimatedPlaylistItemProps {
   item: string;
   index: number;
   onRemove: (item: string) => void;
+  colors: { text: string; bg: string; removeBg: string; icon: string };
 }
 
-const AnimatedPlaylistItem = memo(({ item, index, onRemove }: AnimatedPlaylistItemProps) => {
+const AnimatedPlaylistItem = memo(({ item, index, onRemove, colors }: AnimatedPlaylistItemProps) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
   useEffect(() => {
-    // Entrance animation
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        delay: index * 100, // Stagger animation
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 500,
-        delay: index * 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 500,
-        delay: index * 100,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, delay: index * 100, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, delay: index * 100, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 1, duration: 500, delay: index * 100, useNativeDriver: true }),
     ]).start();
   }, []);
 
   const handleRemove = () => {
-    // Exit animation before removal
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: -100,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 0.8,
-        duration: 300,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: -100, duration: 300, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 0.8, duration: 300, useNativeDriver: true }),
     ]).start(() => {
       onRemove(item);
     });
@@ -142,26 +116,16 @@ const AnimatedPlaylistItem = memo(({ item, index, onRemove }: AnimatedPlaylistIt
     <Animated.View
       style={[
         styles.playlistItem,
-        {
-          opacity: fadeAnim,
-          transform: [
-            { translateX: slideAnim },
-            { scale: scaleAnim },
-          ],
-        },
+        { backgroundColor: colors.bg, opacity: fadeAnim, transform: [{ translateX: slideAnim }, { scale: scaleAnim }] },
       ]}
     >
       <View style={styles.playlistContent}>
-        <View style={styles.playlistIcon}>
-          <Ionicons name="musical-notes" size={20} color="#1DB954" />
+        <View style={[styles.playlistIcon, { backgroundColor: colors.icon + "33" }]}>
+          <Ionicons name="musical-notes" size={20} color={colors.icon} />
         </View>
-        <Text style={styles.playlistText}>{item}</Text>
+        <Text style={[styles.playlistText, { color: colors.text }]}>{item}</Text>
       </View>
-      <TouchableOpacity
-        onPress={handleRemove}
-        style={styles.removeButton}
-        activeOpacity={0.7}
-      >
+      <TouchableOpacity onPress={handleRemove} style={[styles.removeButton, { backgroundColor: colors.removeBg }]} activeOpacity={0.7}>
         <Ionicons name="trash" size={22} color="#ff4444" />
       </TouchableOpacity>
     </Animated.View>
@@ -170,36 +134,13 @@ const AnimatedPlaylistItem = memo(({ item, index, onRemove }: AnimatedPlaylistIt
 
 // --- MOCK DATA ---
 const mockRecentlyPlayed = [
-  {
-    id: "1",
-    title: "R&B Mix",
-    image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample1",
-  },
-  {
-    id: "2",
-    title: "I'm Drunk, I Love You OST",
-    image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample2",
-  },
-  {
-    id: "3",
-    title: "Before Trilogy",
-    image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample3",
-  },
+  { id: "1", title: "R&B Mix", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample1" },
+  { id: "2", title: "I'm Drunk, I Love You OST", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample2" },
+  { id: "3", title: "Before Trilogy", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample3" },
 ];
-
 const mockMadeForYou = [
-  {
-    id: "1",
-    title: "Release Radar",
-    subtitle: "Catch all the latest music...",
-    image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample4",
-  },
-  {
-    id: "2",
-    title: "Discover Weekly",
-    subtitle: "Your shortcut to hidden gems...",
-    image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample5",
-  },
+  { id: "1", title: "Release Radar", subtitle: "Catch all the latest music...", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample4" },
+  { id: "2", title: "Discover Weekly", subtitle: "Your shortcut to hidden gems...", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample5" },
 ];
 
 // --- MAIN COMPONENT ---
@@ -213,51 +154,50 @@ const PlaylistsScreen = () => {
   const containerFadeAnim = useRef(new Animated.Value(0)).current;
   const addButtonScaleAnim = useRef(new Animated.Value(1)).current;
 
-  // Load playlists from AsyncStorage on mount
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
+  const darkMode = themeMode === "dark";
+
+  const colors = {
+    text: darkMode ? "#fff" : "#191414",
+    subtitle: darkMode ? "#aaa" : "#555",
+    bg: darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+    inputBg: darkMode ? "#333" : "#eee",
+    icon: "#1DB954",
+    addButtonBg: "#1DB954",
+    undoRedoBg: darkMode ? "#444" : "#ddd",
+    undoRedoText: darkMode ? "#fff" : "#191414",
+    placeholder: darkMode ? "#888" : "#555",
+    removeBg: darkMode ? "rgba(255,68,68,0.2)" : "rgba(255,68,68,0.1)",
+    cardBg: darkMode ? "#333" : "#f0f0f0",
+    cardTitle: darkMode ? "#fff" : "#191414",
+    cardSubtitle: darkMode ? "#ccc" : "#555",
+    borderColor: darkMode ? "#333" : "#ccc",
+  };
+
+  // Load playlists from AsyncStorage
   useEffect(() => {
     (async () => {
       try {
         const saved = await AsyncStorage.getItem("playlists");
-        if (saved) {
-          dispatch({ type: "SET", payload: JSON.parse(saved) });
-        }
-      } catch (error) {
-        console.log("Failed to load playlists:", error);
-      }
+        if (saved) dispatch({ type: "SET", payload: JSON.parse(saved) });
+      } catch (err) { console.log(err); }
     })();
   }, []);
 
-  // Save playlists whenever they change
   useEffect(() => {
-    AsyncStorage.setItem("playlists", JSON.stringify(state.playlists))
-      .catch(error => console.log("Failed to save playlists:", error));
+    AsyncStorage.setItem("playlists", JSON.stringify(state.playlists)).catch(console.log);
   }, [state.playlists]);
 
-  // Animate container on mount
   useEffect(() => {
-    Animated.timing(containerFadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
+    Animated.timing(containerFadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
   }, []);
 
   const handleAdd = () => {
     if (input.trim()) {
-      // Animate add button press
       Animated.sequence([
-        Animated.timing(addButtonScaleAnim, {
-          toValue: 0.9,
-          duration: 100,
-          useNativeDriver: true,
-        }),
-        Animated.timing(addButtonScaleAnim, {
-          toValue: 1,
-          duration: 100,
-          useNativeDriver: true,
-        }),
+        Animated.timing(addButtonScaleAnim, { toValue: 0.9, duration: 100, useNativeDriver: true }),
+        Animated.timing(addButtonScaleAnim, { toValue: 1, duration: 100, useNativeDriver: true }),
       ]).start();
-
       dispatch({ type: "ADD", payload: input.trim() });
       setInput("");
     }
@@ -270,126 +210,93 @@ const PlaylistsScreen = () => {
       showsHorizontalScrollIndicator={false}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <View style={[styles.card, { width: cardSize }]}>
+        <View style={[styles.card, { width: cardSize, backgroundColor: colors.cardBg }]}>
           <Image source={{ uri: item.image }} style={styles.cardImage} />
-          <Text style={styles.cardTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          {item.subtitle && (
-            <Text style={styles.cardSubtitle} numberOfLines={1}>
-              {item.subtitle}
-            </Text>
-          )}
+          <Text style={[styles.cardTitle, { color: colors.cardTitle }]} numberOfLines={1}>{item.title}</Text>
+          {item.subtitle && <Text style={[styles.cardSubtitle, { color: colors.cardSubtitle }]} numberOfLines={1}>{item.subtitle}</Text>}
         </View>
       )}
     />
   );
 
   const renderPlaylistItem = ({ item, index }: { item: string; index: number }) => (
-    <AnimatedPlaylistItem
-      item={item}
-      index={index}
-      onRemove={(itemToRemove) => dispatch({ type: "REMOVE", payload: itemToRemove })}
-    />
+    <AnimatedPlaylistItem item={item} index={index} onRemove={(itm) => dispatch({ type: "REMOVE", payload: itm })} colors={colors} />
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: darkMode ? "#191414" : "#fff" }]}>
       {/* HEADER */}
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>Your Playlists</Text>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>Your Playlists</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate("ProfileScreen", { token })}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="person-circle-outline" size={30} color="#fff" />
+          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("ProfileScreen", { token })} activeOpacity={0.7}>
+            <Ionicons name="person-circle-outline" size={30} color={colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate("SettingsScreen")}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="settings-outline" size={28} color="#fff" />
+          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate("SettingsScreen")} activeOpacity={0.7}>
+            <Ionicons name="settings-outline" size={28} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
 
       {/* BODY SCROLL */}
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* INPUT + ADD BUTTON */}
         <Animated.View style={[styles.inputRow, { opacity: containerFadeAnim }]}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.inputBg, color: colors.text }]}
             placeholder="Add new playlist..."
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.placeholder}
             value={input}
             onChangeText={setInput}
             returnKeyType="done"
             onSubmitEditing={handleAdd}
           />
           <Animated.View style={{ transform: [{ scale: addButtonScaleAnim }] }}>
-            <TouchableOpacity style={styles.addButton} onPress={handleAdd} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.addButton, { backgroundColor: colors.addButtonBg }]} onPress={handleAdd} activeOpacity={0.8}>
               <Ionicons name="add" size={24} color="#fff" />
             </TouchableOpacity>
           </Animated.View>
         </Animated.View>
 
-        {/* UNDO/REDO BUTTONS */}
+        {/* UNDO/REDO */}
         <Animated.View style={[styles.undoRedoRow, { opacity: containerFadeAnim }]}>
           <TouchableOpacity
-            style={[
-              styles.undoRedoButton,
-              state.past.length === 0 && styles.disabledButton,
-            ]}
+            style={[styles.undoRedoButton, { backgroundColor: colors.undoRedoBg }, state.past.length === 0 && styles.disabledButton]}
             disabled={state.past.length === 0}
             onPress={() => dispatch({ type: "UNDO" })}
             activeOpacity={0.7}
           >
-            <Ionicons name="arrow-undo" size={20} color="#fff" />
-            <Text style={styles.undoRedoText}>Undo</Text>
+            <Ionicons name="arrow-undo" size={20} color={colors.undoRedoText} />
+            <Text style={[styles.undoRedoText, { color: colors.undoRedoText }]}>Undo</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.undoRedoButton,
-              state.future.length === 0 && styles.disabledButton,
-            ]}
+            style={[styles.undoRedoButton, { backgroundColor: colors.undoRedoBg }, state.future.length === 0 && styles.disabledButton]}
             disabled={state.future.length === 0}
             onPress={() => dispatch({ type: "REDO" })}
             activeOpacity={0.7}
           >
-            <Ionicons name="arrow-redo" size={20} color="#fff" />
-            <Text style={styles.undoRedoText}>Redo</Text>
+            <Ionicons name="arrow-redo" size={20} color={colors.undoRedoText} />
+            <Text style={[styles.undoRedoText, { color: colors.undoRedoText }]}>Redo</Text>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ANIMATED PLAYLIST LIST */}
+        {/* PLAYLIST LIST */}
         <View style={styles.playlistContainer}>
           {state.playlists.length > 0 ? (
-            <FlatList
-              data={state.playlists}
-              keyExtractor={(item, index) => `${item}-${index}`}
-              renderItem={renderPlaylistItem}
-              scrollEnabled={false}
-              removeClippedSubviews={false}
-            />
+            <FlatList data={state.playlists} keyExtractor={(item, index) => `${item}-${index}`} renderItem={renderPlaylistItem} scrollEnabled={false} removeClippedSubviews={false} />
           ) : (
             <Animated.View style={{ opacity: containerFadeAnim }}>
-              <Text style={styles.emptyText}>No playlists yet. Add one above!</Text>
+              <Text style={[styles.emptyText, { color: colors.subtitle }]}>No playlists yet. Add one above!</Text>
             </Animated.View>
           )}
         </View>
 
         {/* MOCK SECTIONS */}
         <Animated.View style={{ opacity: containerFadeAnim }}>
-          <Text style={styles.sectionTitle}>Recently played</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recently played</Text>
           {renderHorizontalList(mockRecentlyPlayed, 120)}
-
-          <Text style={styles.sectionTitle}>Made for you</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Made for you</Text>
           {renderHorizontalList(mockMadeForYou, 150)}
-
-          <Text style={styles.sectionTitle}>Recommended for you</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended for you</Text>
           {renderHorizontalList(mockRecentlyPlayed, 150)}
         </Animated.View>
       </ScrollView>
@@ -401,144 +308,28 @@ export default PlaylistsScreen;
 
 // --- STYLES ---
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#191414",
-    paddingHorizontal: 12,
-    paddingTop: 20,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  screenTitle: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "bold",
-  },
-  headerIcons: {
-    flexDirection: "row",
-  },
-  iconButton: {
-    padding: 10,
-    marginLeft: 8,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.1)",
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  input: {
-    flex: 1,
-    height: 45,
-    backgroundColor: "#333",
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    color: "#fff",
-    fontSize: 16,
-  },
-  addButton: {
-    marginLeft: 10,
-    backgroundColor: "#1DB954",
-    padding: 12,
-    borderRadius: 25,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  undoRedoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  undoRedoButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#444",
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-  },
-  disabledButton: {
-    opacity: 0.5
-  },
-  undoRedoText: {
-    color: "#fff",
-    marginLeft: 6
-  },
-  playlistContainer: {
-    marginBottom: 20,
-  },
-  playlistItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 12,
-    marginVertical: 2,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderBottomWidth: 1,
-    borderBottomColor: "#333",
-  },
-  playlistContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  playlistIcon: {
-    marginRight: 12,
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: "rgba(29, 185, 84, 0.2)",
-  },
-  playlistText: {
-    color: "#fff",
-    fontSize: 16,
-    flex: 1,
-  },
-  removeButton: {
-    padding: 8,
-    borderRadius: 15,
-    backgroundColor: "rgba(255, 68, 68, 0.2)",
-  },
-  emptyText: {
-    color: "#aaa",
-    textAlign: "center",
-    marginTop: 40,
-    fontSize: 16,
-    fontStyle: "italic",
-  },
-  sectionTitle: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  card: {
-    marginRight: 12
-  },
-  cardImage: {
-    width: "100%",
-    height: 120,
-    borderRadius: 8,
-    marginBottom: 6,
-    backgroundColor: "#333",
-  },
-  cardTitle: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600"
-  },
-  cardSubtitle: {
-    color: "#ccc",
-    fontSize: 12
-  },
+  container: { flex: 1, paddingHorizontal: 12, paddingTop: 20 },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
+  screenTitle: { fontSize: 22, fontWeight: "bold" },
+  headerIcons: { flexDirection: "row" },
+  iconButton: { padding: 10, marginLeft: 8, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.1)" },
+  inputRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  input: { flex: 1, height: 45, borderRadius: 25, paddingHorizontal: 15, fontSize: 16 },
+  addButton: { marginLeft: 10, padding: 12, borderRadius: 25, elevation: 2, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84 },
+  undoRedoRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12 },
+  undoRedoButton: { flexDirection: "row", alignItems: "center", paddingVertical: 8, paddingHorizontal: 15, borderRadius: 20 },
+  disabledButton: { opacity: 0.5 },
+  undoRedoText: { marginLeft: 6 },
+  playlistContainer: { marginBottom: 20 },
+  playlistItem: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 15, paddingHorizontal: 12, marginVertical: 2, borderRadius: 12, borderBottomWidth: 1 },
+  playlistContent: { flexDirection: "row", alignItems: "center", flex: 1 },
+  playlistIcon: { marginRight: 12, padding: 8, borderRadius: 20 },
+  playlistText: { fontSize: 16, flex: 1 },
+  removeButton: { padding: 8, borderRadius: 15 },
+  emptyText: { textAlign: "center", marginTop: 40, fontSize: 16, fontStyle: "italic" },
+  sectionTitle: { fontSize: 18, fontWeight: "bold", marginTop: 20, marginBottom: 10 },
+  card: { marginRight: 12, borderRadius: 8, overflow: "hidden" },
+  cardImage: { width: "100%", height: 120, marginBottom: 6, borderRadius: 8, backgroundColor: "#333" },
+  cardTitle: { fontSize: 14, fontWeight: "600" },
+  cardSubtitle: { fontSize: 12 },
 });

@@ -13,6 +13,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 type SpotifyNav = NativeStackNavigationProp<RootStackParamList, 'Spotify'>;
 
@@ -22,6 +24,10 @@ const Spotify = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation<SpotifyNav>();
 
+  // Redux theme
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
+  const darkMode = themeMode === 'dark';
+
   const handleSignIn = () => {
     const fakeToken = '1234567890abcdef';
 
@@ -29,42 +35,39 @@ const Spotify = () => {
       {
         text: 'OK',
         onPress: () => {
-          // Navigate to PlaylistsScreen after login
-          navigation.replace('PlaylistsScreen', {
-            token: fakeToken,
-          });
+          navigation.replace('PlaylistsScreen', { token: fakeToken });
         },
       },
     ]);
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: darkMode ? '#191414' : '#fff' }]}>
       <Image
         style={styles.logo}
         source={require('../assets/spotify_logo.png')}
       />
-      <Text style={styles.title}>Spotify</Text>
+      <Text style={[styles.title, { color: darkMode ? '#fff' : '#191414' }]}>Spotify</Text>
 
       {/* Email / Username */}
-      <View style={styles.inputContainer}>
-        <Feather name="user" size={20} color="#888" style={styles.inputIcon} />
+      <View style={[styles.inputContainer, { backgroundColor: darkMode ? '#333' : '#eee' }]}>
+        <Feather name="user" size={20} color={darkMode ? '#888' : '#555'} style={styles.inputIcon} />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: darkMode ? '#fff' : '#000' }]}
           placeholder="Email or username"
-          placeholderTextColor="#888"
+          placeholderTextColor={darkMode ? '#888' : '#555'}
           value={email}
           onChangeText={setEmail}
         />
       </View>
 
       {/* Password */}
-      <View style={styles.inputContainer}>
-        <Feather name="lock" size={20} color="#888" style={styles.inputIcon} />
+      <View style={[styles.inputContainer, { backgroundColor: darkMode ? '#333' : '#eee' }]}>
+        <Feather name="lock" size={20} color={darkMode ? '#888' : '#555'} style={styles.inputIcon} />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: darkMode ? '#fff' : '#000' }]}
           placeholder="Password"
-          placeholderTextColor="#888"
+          placeholderTextColor={darkMode ? '#888' : '#555'}
           secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
@@ -73,7 +76,7 @@ const Spotify = () => {
           <Feather
             name={showPassword ? 'eye' : 'eye-off'}
             size={20}
-            color="#888"
+            color={darkMode ? '#888' : '#555'}
           />
         </TouchableOpacity>
       </View>
@@ -84,18 +87,18 @@ const Spotify = () => {
       </TouchableOpacity>
 
       {/* Social Login */}
-      <Text style={styles.socialText}>Or sign in with</Text>
+      <Text style={[styles.socialText, { color: darkMode ? '#aaa' : '#555' }]}>Or sign in with</Text>
       <View style={styles.socialContainer}>
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: darkMode ? '#333' : '#1877F2' }]}>
           <FontAwesome name="facebook" size={22} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity style={[styles.socialButton, { backgroundColor: darkMode ? '#333' : '#DB4437' }]}>
           <FontAwesome name="google" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 
       {/* Footer */}
-      <Text style={styles.footerText}>
+      <Text style={[styles.footerText, { color: darkMode ? '#fff' : '#191414' }]}>
         Don&apos;t have an account?{' '}
         <Text
           style={styles.signUpText}
@@ -113,7 +116,6 @@ export default Spotify;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191414',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
@@ -126,21 +128,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    color: '#fff',
     fontWeight: 'bold',
     marginBottom: 30,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#333',
     borderRadius: 25,
     marginBottom: 15,
     width: '100%',
     paddingHorizontal: 15,
   },
   inputIcon: { marginRight: 10 },
-  input: { flex: 1, height: 50, color: '#fff' },
+  input: { flex: 1, height: 50 },
   button: {
     width: '100%',
     height: 50,
@@ -151,14 +151,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  socialText: { color: '#aaa', marginTop: 20, marginBottom: 10 },
+  socialText: { marginTop: 20, marginBottom: 10 },
   socialContainer: { flexDirection: 'row' },
   socialButton: {
-    backgroundColor: '#333',
     padding: 12,
     borderRadius: 50,
     marginHorizontal: 10,
   },
-  footerText: { color: '#fff', marginTop: 20 },
+  footerText: { marginTop: 20 },
   signUpText: { color: '#1DB954', fontWeight: 'bold' },
 });

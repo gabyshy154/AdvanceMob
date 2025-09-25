@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator, View } from 'react-native';
 
+// Redux
+import { Provider, useSelector } from 'react-redux';
+import { store, RootState } from './store';
+
+// Screens
 import MyProfile from './screens/MyProfile';
 import ProfileDetails from './screens/ProfileDetails';
 import Spotify from './screens/Spotify';
@@ -26,36 +31,29 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
 
-export default function App() {
-  const [isReady, setIsReady] = useState(false);
-  const [initialState, setInitialState] = useState<any>();
+// 🔹 Wrap Navigation in a component that listens to Redux theme
+function RootNavigator({ initialState }: { initialState: any }) {
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
 
-  useEffect(() => {
-    const restoreState = async () => {
-      try {
-        const savedState = await AsyncStorage.getItem(PERSISTENCE_KEY);
-        if (savedState) {
-          setInitialState(JSON.parse(savedState));
-        }
-      } catch (e) {
-        console.log('Failed to load navigation state', e);
-      }
-      setIsReady(true);
-    };
-
-    restoreState();
-  }, []);
-
-  if (!isReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#1DB954" />
-      </View>
-    );
-  }
+  // Map Redux theme mode to NavigationContainer theme
+  const navigationTheme: Theme =
+    themeMode === 'dark'
+      ? DarkTheme
+      : themeMode === 'light'
+      ? DefaultTheme
+      : {
+          ...DefaultTheme,
+          colors: {
+            ...DefaultTheme.colors,
+            primary: '#1DB954', // Spotify green for custom theme default
+            background: '#121212',
+            text: '#fff',
+          },
+        };
 
   return (
     <NavigationContainer
+      theme={navigationTheme}
       initialState={initialState}
       onStateChange={(state) =>
         AsyncStorage.setItem(PERSISTENCE_KEY, JSON.stringify(state))
@@ -106,5 +104,40 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+  );
+}
+
+export default function App() {
+  const [isReady, setIsReady] = useState(false);
+  const [initialState, setInitialState] = useState<any>();
+
+  useEffect(() => {
+    const restoreState = async () => {
+      try {
+        const savedState = await AsyncStorage.getItem(PERSISTENCE_KEY);
+        if (savedState) {
+          setInitialState(JSON.parse(savedState));
+        }
+      } catch (e) {
+        console.log('Failed to load navigation state', e);
+      }
+      setIsReady(true);
+    };
+
+    restoreState();
+  }, []);
+
+  if (!isReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#1DB954" />
+      </View>
+    );
+  }
+
+  return (
+    <Provider store={store}>
+      <RootNavigator initialState={initialState} />
+    </Provider>
   );
 }

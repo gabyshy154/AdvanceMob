@@ -23,6 +23,8 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { Picker } from '@react-native-picker/picker';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 type ProfileScreenNav = NativeStackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
@@ -84,6 +86,7 @@ interface AnimatedInputProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address';
   icon: string;
+  colors: any;
 }
 
 const AnimatedInput = memo(({
@@ -94,14 +97,14 @@ const AnimatedInput = memo(({
   placeholder,
   autoCapitalize = 'none',
   keyboardType = 'default',
-  icon
+  icon,
+  colors
 }: AnimatedInputProps) => {
   const shakeAnim = useSharedValue(0);
   const errorFadeAnim = useSharedValue(0);
 
   useEffect(() => {
     if (error) {
-      // Shake animation for error
       shakeAnim.value = withSequence(
         withTiming(-8, { duration: 50 }),
         withTiming(8, { duration: 50 }),
@@ -109,7 +112,6 @@ const AnimatedInput = memo(({
         withTiming(8, { duration: 50 }),
         withTiming(0, { duration: 50 })
       );
-      // Fade in error message
       errorFadeAnim.value = withTiming(1, { duration: 300 });
     } else {
       errorFadeAnim.value = withTiming(0, { duration: 200 });
@@ -127,16 +129,16 @@ const AnimatedInput = memo(({
 
   return (
     <View style={styles.inputContainer}>
-      <Text style={styles.inputLabel}>{label}</Text>
+      <Text style={[styles.inputLabel, { color: colors.text }]}>{label}</Text>
       <Animated.View style={[styles.inputWrapper, shakeStyle]}>
-        <View style={styles.inputRow}>
-          <Ionicons name={icon as any} size={20} color="#1DB954" style={styles.inputIcon} />
+        <View style={[styles.inputRow, { backgroundColor: colors.inputBg, borderColor: error ? '#ff4444' : 'transparent' }]}>
+          <Ionicons name={icon as any} size={20} color={colors.icon} style={styles.inputIcon} />
           <TextInput
-            style={[styles.input, error ? styles.inputError : null]}
+            style={[styles.input, { color: colors.text }]}
             value={value}
             onChangeText={onChangeText}
             placeholder={placeholder}
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.placeholder}
             autoCapitalize={autoCapitalize}
             keyboardType={keyboardType}
           />
@@ -158,9 +160,10 @@ const AnimatedInput = memo(({
 interface ProfilePreviewProps {
   profileData: ProfileData;
   isEditing: boolean;
+  colors: any;
 }
 
-const ProfilePreview = memo(({ profileData, isEditing }: ProfilePreviewProps) => {
+const ProfilePreview = memo(({ profileData, isEditing, colors }: ProfilePreviewProps) => {
   const fadeAnim = useSharedValue(1);
   const scaleAnim = useSharedValue(1);
 
@@ -182,28 +185,22 @@ const ProfilePreview = memo(({ profileData, isEditing }: ProfilePreviewProps) =>
   const imageUri = GENRE_IMAGES[profileData.genre as keyof typeof GENRE_IMAGES] || GENRE_IMAGES[''];
 
   return (
-    <Animated.View style={[styles.profileSection, animatedStyle]}>
+    <Animated.View style={[styles.profileSection, animatedStyle, { backgroundColor: colors.sectionBg }]}>
       <Image
         source={{ uri: imageUri }}
         style={styles.avatar}
         accessibilityLabel={`Profile picture for ${profileData.genre || 'user'} genre`}
       />
-      <Text style={styles.name}>
-        {profileData.username || 'Your Username'}
-      </Text>
-      <Text style={styles.email}>
-        {profileData.email || 'your.email@example.com'}
-      </Text>
+      <Text style={[styles.name, { color: colors.text }]}>{profileData.username || 'Your Username'}</Text>
+      <Text style={[styles.email, { color: colors.subtext }]}>{profileData.email || 'your.email@example.com'}</Text>
       <View style={styles.genreContainer}>
         <Ionicons name="musical-note" size={16} color="#1DB954" />
-        <Text style={styles.genreText}>
-          {profileData.genre || 'Select Genre'}
-        </Text>
+        <Text style={[styles.genreText, { color: colors.highlight }]}>{profileData.genre || 'Select Genre'}</Text>
       </View>
-      <Text style={styles.followInfo}>
-        <Text style={styles.bold}>15</Text>
+      <Text style={[styles.followInfo, { color: colors.subtext }]}>
+        <Text style={[styles.bold, { color: colors.text }]}>15</Text>
         <Text> followers • </Text>
-        <Text style={styles.bold}>7</Text>
+        <Text style={[styles.bold, { color: colors.text }]}>7</Text>
         <Text> following</Text>
       </Text>
     </Animated.View>
@@ -215,6 +212,20 @@ const ProfileScreen = () => {
   const navigation = useNavigation<ProfileScreenNav>();
   const route = useRoute<any>();
   const token = route.params?.token;
+  const themeMode = useSelector((state: RootState) => state.theme.mode);
+  const darkMode = themeMode === 'dark';
+
+  const colors = {
+    bg: darkMode ? '#191414' : '#fff',
+    text: darkMode ? '#fff' : '#191414',
+    subtext: darkMode ? '#aaa' : '#555',
+    highlight: '#1DB954',
+    sectionBg: darkMode ? 'rgba(255,255,255,0.05)' : '#f4f4f4',
+    inputBg: darkMode ? '#333' : '#e8e8e8',
+    placeholder: darkMode ? '#888' : '#aaa',
+    icon: darkMode ? '#fff' : '#000',
+    buttonBg: '#1DB954',
+  };
 
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -235,28 +246,19 @@ const ProfileScreen = () => {
   const editButtonScale = useSharedValue(1);
   const saveButtonScale = useSharedValue(1);
 
-  // Load user data and cached profile data
   useEffect(() => {
     loadData();
   }, [token]);
 
-  // Cache profile data whenever it changes
   useEffect(() => {
-    if (!loading) {
-      cacheProfileData();
-    }
+    if (!loading) cacheProfileData();
   }, [profileData, loading]);
 
   const loadData = async () => {
     try {
-      // Load cached profile data
       const cached = await AsyncStorage.getItem(PROFILE_CACHE_KEY);
-      if (cached) {
-        const parsedData = JSON.parse(cached);
-        setProfileData(parsedData);
-      }
+      if (cached) setProfileData(JSON.parse(cached));
 
-      // Load Spotify user data if token exists
       if (token) {
         const response = await fetch("https://api.spotify.com/v1/me", {
           headers: { Authorization: `Bearer ${token}` },
@@ -264,7 +266,6 @@ const ProfileScreen = () => {
         const userData = await response.json();
         setUser(userData);
 
-        // If no cached data but we have Spotify data, initialize with it
         if (!cached && userData) {
           setProfileData({
             username: userData.display_name || '',
@@ -290,21 +291,15 @@ const ProfileScreen = () => {
 
   const validateField = (field: keyof ProfileData, value: string): string => {
     switch (field) {
-      case 'username':
-        return validateUsername(value);
-      case 'email':
-        return validateEmail(value);
-      case 'genre':
-        return validateGenre(value);
-      default:
-        return '';
+      case 'username': return validateUsername(value);
+      case 'email': return validateEmail(value);
+      case 'genre': return validateGenre(value);
+      default: return '';
     }
   };
 
   const handleInputChange = (field: keyof ProfileData, value: string) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
-
-    // Real-time validation
     const error = validateField(field, value);
     setErrors(prev => ({ ...prev, [field]: error }));
   };
@@ -315,7 +310,6 @@ const ProfileScreen = () => {
       email: validateEmail(profileData.email),
       genre: validateGenre(profileData.genre),
     };
-
     setErrors(newErrors);
     return !Object.values(newErrors).some(error => error !== '');
   };
@@ -333,79 +327,59 @@ const ProfileScreen = () => {
       withTiming(0.9, { duration: 100 }),
       withTiming(1, { duration: 100 })
     );
-
     if (validateAllFields()) {
-      Alert.alert(
-        'Profile Updated!',
-        'Your profile has been successfully updated.',
-        [
-          {
-            text: 'OK',
-            onPress: () => setIsEditing(false),
-          },
-        ]
-      );
+      Alert.alert('Profile Updated!', 'Your profile has been successfully updated.', [
+        { text: 'OK', onPress: () => setIsEditing(false) },
+      ]);
     }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset validation errors
     setErrors({ username: '', email: '', genre: '' });
   };
 
-  const editButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: editButtonScale.value }],
-  }));
-
-  const saveButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: saveButtonScale.value }],
-  }));
+  const editButtonStyle = useAnimatedStyle(() => ({ transform: [{ scale: editButtonScale.value }] }));
+  const saveButtonStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveButtonScale.value }] }));
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1DB954" />
-        <Text style={{ color: "#fff", marginTop: 10 }}>
-          Loading profile...
-        </Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.bg }]}>
+        <ActivityIndicator size="large" color={colors.highlight} />
+        <Text style={{ color: colors.text, marginTop: 10 }}>Loading profile...</Text>
       </View>
     );
   }
 
-  const isFormValid = !Object.values(errors).some(error => error !== '') &&
-                     Object.values(profileData).every(value => value !== '');
+  const isFormValid = !Object.values(errors).some(e => e !== '') && Object.values(profileData).every(v => v !== '');
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} showsVerticalScrollIndicator={false}>
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}
         >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Ionicons name="arrow-back" size={24} color={colors.icon} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Profile</Text>
         <View style={{ width: 32 }} />
       </View>
 
-      {/* PROFILE PREVIEW */}
-      <ProfilePreview profileData={profileData} isEditing={isEditing} />
+      <ProfilePreview profileData={profileData} isEditing={isEditing} colors={colors} />
 
-      {/* EDIT BUTTON OR FORM */}
       {!isEditing ? (
         <Animated.View style={[styles.editButtonContainer, editButtonStyle]}>
-          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+          <TouchableOpacity style={[styles.editButton, { backgroundColor: colors.buttonBg }]} onPress={handleEdit}>
             <Ionicons name="pencil" size={18} color="#fff" style={{ marginRight: 6 }} />
             <Text style={styles.editText}>Edit Profile</Text>
           </TouchableOpacity>
         </Animated.View>
       ) : (
-        <View style={styles.formContainer}>
-          <Text style={styles.formTitle}>Edit Your Profile</Text>
-
+        <View style={[styles.formContainer, { backgroundColor: colors.sectionBg }]}>
+          <Text style={[styles.formTitle, { color: colors.text }]}>Edit Your Profile</Text>
           <AnimatedInput
             label="Username"
             value={profileData.username}
@@ -413,8 +387,8 @@ const ProfileScreen = () => {
             error={errors.username}
             placeholder="Enter your username"
             icon="person"
+            colors={colors}
           />
-
           <AnimatedInput
             label="Email"
             value={profileData.email}
@@ -423,50 +397,44 @@ const ProfileScreen = () => {
             placeholder="Enter your email"
             keyboardType="email-address"
             icon="mail"
+            colors={colors}
           />
-
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Favorite Genre</Text>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Favorite Genre</Text>
             <View style={styles.inputRow}>
-              <Ionicons name="musical-notes" size={20} color="#1DB954" style={styles.inputIcon} />
-              <View style={[styles.pickerWrapper, errors.genre ? styles.inputError : null]}>
+              <Ionicons name="musical-notes" size={20} color={colors.highlight} style={styles.inputIcon} />
+              <View style={[styles.pickerWrapper, { backgroundColor: colors.inputBg, borderColor: errors.genre ? '#ff4444' : 'transparent' }]}>
                 <Picker
                   selectedValue={profileData.genre}
                   onValueChange={(value) => handleInputChange('genre', value)}
-                  style={styles.picker}
-                  dropdownIconColor="#1DB954"
+                  style={[styles.picker, { color: colors.text }]}
+                  dropdownIconColor={colors.highlight}
                 >
                   <Picker.Item label="Select a genre..." value="" />
-                  {GENRES.map((genre) => (
-                    <Picker.Item key={genre} label={genre} value={genre} />
-                  ))}
+                  {GENRES.map((genre) => <Picker.Item key={genre} label={genre} value={genre} />)}
                 </Picker>
               </View>
               {!errors.genre && profileData.genre ? (
-                <Ionicons name="checkmark-circle" size={20} color="#1DB954" />
+                <Ionicons name="checkmark-circle" size={20} color={colors.highlight} />
               ) : errors.genre ? (
                 <Ionicons name="close-circle" size={20} color="#ff4444" />
               ) : null}
             </View>
-            {errors.genre ? (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{errors.genre}</Text>
-              </View>
-            ) : null}
+            {errors.genre && <View style={styles.errorContainer}><Text style={styles.errorText}>{errors.genre}</Text></View>}
           </View>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-              <Text style={styles.cancelText}>Cancel</Text>
+            <TouchableOpacity style={[styles.cancelButton, { backgroundColor: darkMode ? '#444' : '#ddd' }]} onPress={handleCancel}>
+              <Text style={[styles.cancelText, { color: colors.text }]}>Cancel</Text>
             </TouchableOpacity>
 
             <Animated.View style={saveButtonStyle}>
               <TouchableOpacity
-                style={[styles.saveButton, isFormValid ? styles.saveButtonActive : styles.saveButtonInactive]}
+                style={[styles.saveButton, isFormValid ? { backgroundColor: colors.buttonBg } : { backgroundColor: '#666' }]}
                 onPress={handleSave}
                 disabled={!isFormValid}
               >
-                <Text style={[styles.saveText, isFormValid ? styles.saveTextActive : styles.saveTextInactive]}>
+                <Text style={[styles.saveText, isFormValid ? { color: '#fff' } : { color: '#aaa' }]}>
                   Save Changes
                 </Text>
               </TouchableOpacity>
@@ -475,7 +443,7 @@ const ProfileScreen = () => {
         </View>
       )}
 
-      {/* PLAYLISTS SECTION */}
+      {/* --- PLAYLISTS SECTION --- */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Playlists</Text>
 
@@ -520,7 +488,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* RECENTLY PLAYED ARTISTS */}
+      {/* --- RECENTLY PLAYED ARTISTS --- */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Recently played artists</Text>
 
@@ -551,6 +519,7 @@ const ProfileScreen = () => {
 };
 
 export default ProfileScreen;
+
 
 const styles = StyleSheet.create({
   container: {
