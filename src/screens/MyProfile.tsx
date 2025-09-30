@@ -27,6 +27,13 @@ const MyProfile = () => {
       >
         <Text style={styles.buttonText}>Go to Spotify</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: '#FF6B6B', marginTop: 15 }]}
+        onPress={() => navigation.navigate('CameraScreen')}
+      >
+        <Text style={styles.buttonText}>📷 Go to Camera</Text>
+      </TouchableOpacity>
     </View>
   );
 };
