@@ -225,6 +225,7 @@ const ProfileScreen = () => {
     placeholder: darkMode ? '#888' : '#aaa',
     icon: darkMode ? '#fff' : '#000',
     buttonBg: '#1DB954',
+    borderColor: darkMode ? '#333' : '#ddd',
   };
 
   const [user, setUser] = useState<any>(null);
@@ -445,7 +446,7 @@ const ProfileScreen = () => {
 
       {/* --- PLAYLISTS SECTION --- */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Playlists</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Playlists</Text>
 
         <TouchableOpacity style={styles.playlistItem}>
           <Image
@@ -453,8 +454,8 @@ const ProfileScreen = () => {
             style={styles.playlistImage}
           />
           <View>
-            <Text style={styles.playlistTitle}>Film,Make</Text>
-            <Text style={styles.playlistSubtitle}>0 saves</Text>
+            <Text style={[styles.playlistTitle, { color: colors.text }]}>Film,Make</Text>
+            <Text style={[styles.playlistSubtitle, { color: colors.subtext }]}>0 saves</Text>
           </View>
         </TouchableOpacity>
 
@@ -464,8 +465,8 @@ const ProfileScreen = () => {
             style={styles.playlistImage}
           />
           <View>
-            <Text style={styles.playlistTitle}>get_off_dopamine</Text>
-            <Text style={styles.playlistSubtitle}>0 saves</Text>
+            <Text style={[styles.playlistTitle, { color: colors.text }]}>get_off_dopamine</Text>
+            <Text style={[styles.playlistSubtitle, { color: colors.subtext }]}>0 saves</Text>
           </View>
         </TouchableOpacity>
 
@@ -475,22 +476,22 @@ const ProfileScreen = () => {
             style={styles.playlistImage}
           />
           <View>
-            <Text style={styles.playlistTitle}>Gamin ft. the boys</Text>
-            <Text style={styles.playlistSubtitle}>0 saves</Text>
+            <Text style={[styles.playlistTitle, { color: colors.text }]}>Gamin ft. the boys</Text>
+            <Text style={[styles.playlistSubtitle, { color: colors.subtext }]}>0 saves</Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.seeAllButton}
+          style={[styles.seeAllButton, { borderColor: colors.borderColor }]}
           onPress={() => navigation.navigate("PlaylistsScreen", { token })}
         >
-          <Text style={styles.seeAllText}>See all playlists</Text>
+          <Text style={[styles.seeAllText, { color: colors.text }]}>See all playlists</Text>
         </TouchableOpacity>
       </View>
 
       {/* --- RECENTLY PLAYED ARTISTS --- */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recently played artists</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Recently played artists</Text>
 
         <TouchableOpacity style={styles.artistItem}>
           <Image
@@ -498,8 +499,8 @@ const ProfileScreen = () => {
             style={styles.artistImage}
           />
           <View>
-            <Text style={styles.artistName}>Drake</Text>
-            <Text style={styles.artistFollowers}>101,580,796 followers</Text>
+            <Text style={[styles.artistName, { color: colors.text }]}>Drake</Text>
+            <Text style={[styles.artistFollowers, { color: colors.subtext }]}>101,580,796 followers</Text>
           </View>
         </TouchableOpacity>
 
@@ -509,8 +510,8 @@ const ProfileScreen = () => {
             style={styles.artistImage}
           />
           <View>
-            <Text style={styles.artistName}>Tommy Richman</Text>
-            <Text style={styles.artistFollowers}>925,880 followers</Text>
+            <Text style={[styles.artistName, { color: colors.text }]}>Tommy Richman</Text>
+            <Text style={[styles.artistFollowers, { color: colors.subtext }]}>925,880 followers</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -524,13 +525,11 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#191414",
     paddingHorizontal: 20,
     paddingTop: 10,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: "#191414",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -544,14 +543,12 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 12,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
     minWidth: 48,
     minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
   },
@@ -559,7 +556,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 30,
     padding: 20,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 16,
   },
   avatar: {
@@ -569,13 +565,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   name: {
-    color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 4,
   },
   email: {
-    color: "#aaa",
     fontSize: 16,
     marginBottom: 8,
   },
@@ -585,18 +579,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   genreText: {
-    color: "#1DB954",
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,
   },
   followInfo: {
-    color: "#aaa",
     fontSize: 14,
   },
   bold: {
     fontWeight: "bold",
-    color: "#fff",
   },
   editButtonContainer: {
     alignItems: 'center',
@@ -605,7 +596,6 @@ const styles = StyleSheet.create({
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: "#1DB954",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 25,
@@ -616,13 +606,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   formContainer: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 16,
     padding: 20,
     marginBottom: 30,
   },
   formTitle: {
-    color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
@@ -632,7 +620,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   inputLabel: {
-    color: "#fff",
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
@@ -643,7 +630,6 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#333',
     borderRadius: 12,
     paddingHorizontal: 12,
     borderWidth: 2,
@@ -654,7 +640,6 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: '#fff',
     paddingVertical: 14,
     fontSize: 16,
   },
@@ -666,7 +651,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   picker: {
-    color: '#fff',
     backgroundColor: 'transparent',
   },
   errorContainer: {
@@ -684,14 +668,12 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#444',
     paddingVertical: 12,
     borderRadius: 8,
     marginRight: 10,
     alignItems: 'center',
   },
   cancelText: {
-    color: '#fff',
     fontWeight: '600',
   },
   saveButton: {
@@ -720,7 +702,6 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   sectionTitle: {
-    color: "#fff",
     fontWeight: "bold",
     fontSize: 18,
     marginBottom: 10,
@@ -740,18 +721,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#333",
   },
   playlistTitle: {
-    color: "#fff",
     fontSize: 16,
   },
   playlistSubtitle: {
-    color: "#aaa",
     fontSize: 13,
   },
   seeAllButton: {
     alignSelf: "center",
     marginTop: 8,
     borderWidth: 1,
-    borderColor: "#aaa",
     borderRadius: 25,
     paddingHorizontal: 20,
     paddingVertical: 6,
@@ -760,7 +738,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   seeAllText: {
-    color: "#fff",
     fontWeight: "bold",
   },
   artistItem: {
@@ -778,11 +755,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#333",
   },
   artistName: {
-    color: "#fff",
     fontSize: 16,
   },
   artistFollowers: {
-    color: "#aaa",
     fontSize: 13,
   },
 });
