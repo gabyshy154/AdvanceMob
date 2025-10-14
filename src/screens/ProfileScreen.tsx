@@ -28,7 +28,6 @@ import { RootState } from "../store/store";
 
 type ProfileScreenNav = NativeStackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 
-// --- CONSTANTS ---
 const GENRES = ['Pop', 'Rock', 'Jazz', 'Classical', 'Hip-Hop'];
 const PROFILE_CACHE_KEY = 'user_profile_cache';
 
@@ -41,7 +40,6 @@ const GENRE_IMAGES = {
   '': 'https://via.placeholder.com/120x120/808080/FFFFFF?text=USER',
 };
 
-// --- VALIDATION FUNCTIONS ---
 const validateUsername = (username: string): string => {
   if (!username) return 'Username is required';
   if (username.length < 3) return 'Username must be at least 3 characters';
@@ -63,7 +61,6 @@ const validateGenre = (genre: string): string => {
   return '';
 };
 
-// --- TYPES ---
 interface ProfileData {
   username: string;
   email: string;
@@ -76,7 +73,6 @@ interface ValidationErrors {
   genre: string;
 }
 
-// --- ANIMATED INPUT COMPONENT ---
 interface AnimatedInputProps {
   label: string;
   value: string;
@@ -156,7 +152,6 @@ const AnimatedInput = memo(({
   );
 });
 
-// --- PROFILE PREVIEW COMPONENT ---
 interface ProfilePreviewProps {
   profileData: ProfileData;
   isEditing: boolean;
@@ -166,6 +161,11 @@ interface ProfilePreviewProps {
 const ProfilePreview = memo(({ profileData, isEditing, colors }: ProfilePreviewProps) => {
   const fadeAnim = useSharedValue(1);
   const scaleAnim = useSharedValue(1);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [profileData.genre]);
 
   useEffect(() => {
     if (isEditing) {
@@ -186,11 +186,21 @@ const ProfilePreview = memo(({ profileData, isEditing, colors }: ProfilePreviewP
 
   return (
     <Animated.View style={[styles.profileSection, animatedStyle, { backgroundColor: colors.sectionBg }]}>
-      <Image
-        source={{ uri: imageUri }}
-        style={styles.avatar}
-        accessibilityLabel={`Profile picture for ${profileData.genre || 'user'} genre`}
-      />
+      {!imageError ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.avatar}
+          resizeMode="cover"
+          onError={() => setImageError(true)}
+          key={imageUri}
+        />
+      ) : (
+        <View style={[styles.avatar, { backgroundColor: colors.highlight, alignItems: 'center', justifyContent: 'center' }]}>
+          <Text style={{ color: '#fff', fontSize: 32, fontWeight: 'bold' }}>
+            {profileData.genre ? profileData.genre.charAt(0) : 'U'}
+          </Text>
+        </View>
+      )}
       <Text style={[styles.name, { color: colors.text }]}>{profileData.username || 'Your Username'}</Text>
       <Text style={[styles.email, { color: colors.subtext }]}>{profileData.email || 'your.email@example.com'}</Text>
       <View style={styles.genreContainer}>
@@ -207,7 +217,6 @@ const ProfilePreview = memo(({ profileData, isEditing, colors }: ProfilePreviewP
   );
 });
 
-// --- MAIN COMPONENT ---
 const ProfileScreen = () => {
   const navigation = useNavigation<ProfileScreenNav>();
   const route = useRoute<any>();
@@ -356,7 +365,6 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} showsVerticalScrollIndicator={false}>
-      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -444,13 +452,12 @@ const ProfileScreen = () => {
         </View>
       )}
 
-      {/* --- PLAYLISTS SECTION --- */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Playlists</Text>
 
         <TouchableOpacity style={styles.playlistItem}>
           <Image
-            source={require("../assets/playlist_placeholder.jpg")}
+            source={require("../assets/film.jpg")}
             style={styles.playlistImage}
           />
           <View>
@@ -472,7 +479,7 @@ const ProfileScreen = () => {
 
         <TouchableOpacity style={styles.playlistItem}>
           <Image
-            source={require("../assets/playlist_placeholder.jpg")}
+            source={require("../assets/game.jpg")}
             style={styles.playlistImage}
           />
           <View>
@@ -489,13 +496,12 @@ const ProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* --- RECENTLY PLAYED ARTISTS --- */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Recently played artists</Text>
 
         <TouchableOpacity style={styles.artistItem}>
           <Image
-            source={require("../assets/artist_placeholder.jpg")}
+            source={require("../assets/drake.jpg")}
             style={styles.artistImage}
           />
           <View>
@@ -506,7 +512,7 @@ const ProfileScreen = () => {
 
         <TouchableOpacity style={styles.artistItem}>
           <Image
-            source={require("../assets/artist_placeholder.jpg")}
+            source={require("../assets/Tommy.jpg")}
             style={styles.artistImage}
           />
           <View>
@@ -520,7 +526,6 @@ const ProfileScreen = () => {
 };
 
 export default ProfileScreen;
-
 
 const styles = StyleSheet.create({
   container: {

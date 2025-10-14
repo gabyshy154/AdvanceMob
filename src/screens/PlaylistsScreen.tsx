@@ -18,11 +18,7 @@ import { RootStackParamList } from "../App";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 
-// --- TYPES ---
-type PlaylistsNav = NativeStackNavigationProp<
-  RootStackParamList,
-  "PlaylistsScreen"
->;
+type PlaylistsNav = NativeStackNavigationProp<RootStackParamList, "PlaylistsScreen">;
 
 type State = {
   playlists: string[];
@@ -37,7 +33,6 @@ type Action =
   | { type: "REDO" }
   | { type: "SET"; payload: string[] };
 
-// --- REDUCER ---
 const initialState: State = {
   playlists: [],
   past: [],
@@ -81,7 +76,6 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-// --- ANIMATED PLAYLIST ITEM ---
 interface AnimatedPlaylistItemProps {
   item: string;
   index: number;
@@ -132,18 +126,17 @@ const AnimatedPlaylistItem = memo(({ item, index, onRemove, colors }: AnimatedPl
   );
 });
 
-// --- MOCK DATA ---
 const mockRecentlyPlayed = [
-  { id: "1", title: "R&B Mix", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample1" },
-  { id: "2", title: "I'm Drunk, I Love You OST", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample2" },
-  { id: "3", title: "Before Trilogy", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample3" },
-];
-const mockMadeForYou = [
-  { id: "1", title: "Release Radar", subtitle: "Catch all the latest music...", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample4" },
-  { id: "2", title: "Discover Weekly", subtitle: "Your shortcut to hidden gems...", image: "https://i.scdn.co/image/ab67616d0000b2734b8a4cdedexample5" },
+  { id: "1", title: "R&B Mix", image: require("../assets/playlist1.jpg") },
+  { id: "2", title: "I'm Drunk, I Love You OST", image: require("../assets/playlist2.jpg") },
+  { id: "3", title: "Before Trilogy", image: require("../assets/playlist3.jpg") },
 ];
 
-// --- MAIN COMPONENT ---
+const mockMadeForYou = [
+  { id: "1", title: "Release Radar", subtitle: "Catch all the latest music...", image: require("../assets/release_radar.jpg") },
+  { id: "2", title: "Discover Weekly", subtitle: "Your shortcut to hidden gems...", image: require("../assets/discover_weekly.jpg") },
+];
+
 const PlaylistsScreen = () => {
   const navigation = useNavigation<PlaylistsNav>();
   const route = useRoute<any>();
@@ -174,13 +167,14 @@ const PlaylistsScreen = () => {
     borderColor: darkMode ? "#333" : "#ccc",
   };
 
-  // Load playlists from AsyncStorage
   useEffect(() => {
     (async () => {
       try {
         const saved = await AsyncStorage.getItem("playlists");
         if (saved) dispatch({ type: "SET", payload: JSON.parse(saved) });
-      } catch (err) { console.log(err); }
+      } catch (err) {
+        console.log(err);
+      }
     })();
   }, []);
 
@@ -211,7 +205,7 @@ const PlaylistsScreen = () => {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <View style={[styles.card, { width: cardSize, backgroundColor: colors.cardBg }]}>
-          <Image source={{ uri: item.image }} style={styles.cardImage} />
+          <Image source={item.image} style={styles.cardImage} />
           <Text style={[styles.cardTitle, { color: colors.cardTitle }]} numberOfLines={1}>{item.title}</Text>
           {item.subtitle && <Text style={[styles.cardSubtitle, { color: colors.cardSubtitle }]} numberOfLines={1}>{item.subtitle}</Text>}
         </View>
@@ -225,7 +219,6 @@ const PlaylistsScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: darkMode ? "#191414" : "#fff" }]}>
-      {/* HEADER */}
       <View style={styles.header}>
         <Text style={[styles.screenTitle, { color: colors.text }]}>Your Playlists</Text>
         <View style={styles.headerIcons}>
@@ -238,7 +231,6 @@ const PlaylistsScreen = () => {
         </View>
       </View>
 
-      {/* BODY SCROLL */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Animated.View style={[styles.inputRow, { opacity: containerFadeAnim }]}>
           <TextInput
@@ -257,7 +249,6 @@ const PlaylistsScreen = () => {
           </Animated.View>
         </Animated.View>
 
-        {/* UNDO/REDO */}
         <Animated.View style={[styles.undoRedoRow, { opacity: containerFadeAnim }]}>
           <TouchableOpacity
             style={[styles.undoRedoButton, { backgroundColor: colors.undoRedoBg }, state.past.length === 0 && styles.disabledButton]}
@@ -279,7 +270,6 @@ const PlaylistsScreen = () => {
           </TouchableOpacity>
         </Animated.View>
 
-        {/* PLAYLIST LIST */}
         <View style={styles.playlistContainer}>
           {state.playlists.length > 0 ? (
             <FlatList data={state.playlists} keyExtractor={(item, index) => `${item}-${index}`} renderItem={renderPlaylistItem} scrollEnabled={false} removeClippedSubviews={false} />
@@ -290,7 +280,6 @@ const PlaylistsScreen = () => {
           )}
         </View>
 
-        {/* MOCK SECTIONS */}
         <Animated.View style={{ opacity: containerFadeAnim }}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Recently played</Text>
           {renderHorizontalList(mockRecentlyPlayed, 120)}
@@ -306,13 +295,12 @@ const PlaylistsScreen = () => {
 
 export default PlaylistsScreen;
 
-// --- STYLES ---
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 12, paddingTop: 20 },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
-  screenTitle: { fontSize: 22, fontWeight: "bold" },
+  container: { flex: 1, paddingHorizontal: 12, paddingTop: 50 },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingHorizontal: 4 },
+  screenTitle: { fontSize: 28, fontWeight: "bold" },
   headerIcons: { flexDirection: "row" },
-  iconButton: { padding: 10, marginLeft: 8, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.1)" },
+  iconButton: { padding: 10, marginLeft: 8, borderRadius: 20, backgroundColor: "rgba(128,128,128,0.2)" },
   inputRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
   input: { flex: 1, height: 45, borderRadius: 25, paddingHorizontal: 15, fontSize: 16 },
   addButton: { marginLeft: 10, padding: 12, borderRadius: 25, elevation: 2, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84 },
