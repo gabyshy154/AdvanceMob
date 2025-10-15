@@ -19,6 +19,11 @@
     <!-- For Android 13+ (API 33+) media permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <!-- Location permissions for Maps -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
     <!-- Declare camera feature (optional but recommended) -->
     <uses-feature
         android:name="android.hardware.camera"
@@ -36,6 +41,11 @@
         android:theme="@style/AppTheme"
         android:supportsRtl="true"
         android:requestLegacyExternalStorage="true">
+
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAVmxFfz8PL9SM2y_8CSXDIySR9hs5E_nU"/>
 
         <activity
             android:name=".MainActivity"

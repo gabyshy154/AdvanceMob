@@ -17,6 +17,7 @@ import PlaylistsScreen from './screens/PlaylistsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import CameraScreen from './screens/CameraScreen';
+import MapScreen from './screens/MapScreen';
 
 export type RootStackParamList = {
   MyProfile: undefined;
@@ -27,6 +28,7 @@ export type RootStackParamList = {
   ProfileScreen: { token?: string };
   SettingsScreen: undefined;
   CameraScreen: undefined;
+  MapScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -108,6 +110,11 @@ function RootNavigator({ initialState }: { initialState: any }) {
           name="CameraScreen"
           component={CameraScreen}
           options={{ accessibilityLabel: 'Camera with Filters Screen' }}
+        />
+        <Stack.Screen
+          name="MapScreen"
+          component={MapScreen}
+          options={{ accessibilityLabel: 'Interactive Map Screen' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

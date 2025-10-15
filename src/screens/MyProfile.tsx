@@ -34,6 +34,13 @@ const MyProfile = () => {
       >
         <Text style={styles.buttonText}>📷 Go to Camera</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: '#4CAF50', marginTop: 15 }]}
+        onPress={() => navigation.navigate('MapScreen')}
+      >
+        <Text style={styles.buttonText}>🗺️ Go to Map</Text>
+      </TouchableOpacity>
     </View>
   );
 };
